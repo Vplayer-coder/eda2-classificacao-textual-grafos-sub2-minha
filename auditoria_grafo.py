@@ -225,56 +225,64 @@ def limpar_e_tokenizar(texto_review):
 # 3. MOTOR DE AUDITORIA E APRESENTAÇÃO
 # ==============================================================================
 def auditar_bfs_ponderada(grafo, tokens, modo_detalhado=False):
+   
+    # Fator de Amortecimento: idêntico ao motor principal (α = 0.85, estilo PageRank)
+    FATOR_AMORTECIMENTO = 0.85
     pontuacoes = [0, 0, 0]
     percentuais = [0.0, 0.0, 0.0]
     categorias_nomes = ["Casual", "Técnico", "Hardcore"]
     tokens_reconhecidos = []
-    
+
     for token in tokens:
         id_palavra = grafo.buscar_id_por_nome(token)
         if id_palavra == -1: continue
-        
+
         tokens_reconhecidos.append(token)
         if modo_detalhado:
             print(f"\n[Token Processado]: '{token}' (Energia Inicial = 1)")
-            
+
         fila = Fila()
-        visitados = [False] * len(grafo.vertices_nome)
-        
-        fila.enfileirar([id_palavra, 1]) 
-        visitados[id_palavra] = True
-        
+
+        # Vetor Numérico de Níveis: previne loops e inflação artificial de vizinhos.
+        # Um nível -1 indica que o nó ainda não foi visitado pela BFS.
+        niveis = [-1] * len(grafo.vertices_nome)
+
+        fila.enfileirar([id_palavra, 1, 0])  # [id_vertice, energia, nivel_atual]
+        niveis[id_palavra] = 0
+
         while not fila.vazia():
             item_fila = fila.desenfileirar()
-            atual, energia_herdada = item_fila[0], item_fila[1]
+            atual, energia_herdada, nivel_atual = item_fila[0], item_fila[1], item_fila[2]
             tipo_atual, nome_atual = grafo.vertices_tipo[atual], grafo.vertices_nome[atual]
-            
+
             if tipo_atual == 2:
                 if modo_detalhado:
-                    print(f"   -> Chegou à Raiz [{nome_atual}] depositando +{energia_herdada} pontos!")
+                    print(f"   -> Chegou à Raiz [{nome_atual}] depositando +{energia_herdada:.4f} pontos!")
                 if "CASUAL" in nome_atual: pontuacoes[0] += energia_herdada
                 elif "TÉCNICO" in nome_atual: pontuacoes[1] += energia_herdada
                 elif "HARDCORE" in nome_atual: pontuacoes[2] += energia_herdada
                 continue 
-                
+
             for idx_vizinho in range(len(grafo.adjacencias[atual])):
                 vizinho = grafo.adjacencias[atual][idx_vizinho]
                 peso_aresta = grafo.pesos[atual][idx_vizinho]
-                
-                if grafo.vertices_tipo[vizinho] > tipo_atual and not visitados[vizinho]:
-                    nova_energia = energia_herdada * peso_aresta
+
+                if grafo.vertices_tipo[vizinho] > tipo_atual and niveis[vizinho] == -1:
+                    nova_energia = energia_herdada * peso_aresta * FATOR_AMORTECIMENTO
                     if modo_detalhado:
                         nome_vizinho = grafo.vertices_nome[vizinho]
-                        print(f"   -> Propagando de '{nome_atual}' para '{nome_vizinho}' (Peso da Aresta: {peso_aresta}) => Energia Acumulada: {nova_energia}")
-                    fila.enfileirar([vizinho, nova_energia])
-                    visitados[vizinho] = True
-                    
+                        print(f"   -> Propagando de '{nome_atual}' para '{nome_vizinho}' "
+                              f"(Peso: {peso_aresta} × α={FATOR_AMORTECIMENTO}) "
+                              f"=> Energia Transmitida: {nova_energia:.4f}")
+                    fila.enfileirar([vizinho, nova_energia, nivel_atual + 1])
+                    niveis[vizinho] = nivel_atual + 1
+
     total_energia = sum(pontuacoes)
     rotulos_finais = []
-    
+
     if total_energia > 0:
         percentuais = [(p / total_energia) * 100 for p in pontuacoes]
-    
+
     if total_energia == 0:
         rotulos_finais = ["Indefinido"]
     elif total_energia < 5:
@@ -287,7 +295,7 @@ def auditar_bfs_ponderada(grafo, tokens, modo_detalhado=False):
         for i in range(3):
             if percentuais[i] >= 30.0:
                 rotulos_finais.append(categorias_nomes[i])
-                
+
     return tokens_reconhecidos, pontuacoes, percentuais, rotulos_finais
 
 def executar_testes_controlados(grafo):
