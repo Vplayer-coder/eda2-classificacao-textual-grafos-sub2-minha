@@ -3,16 +3,11 @@ import os
 import re
 import unicodedata
 import random
+from estrutura_dados import Fila
 
 # ==============================================================================
 # 1. ESTRUTURAS BASE E CONSTRUÇÃO DO GRAFO (Idênticas ao motor principal)
 # ==============================================================================
-class Fila:
-    def __init__(self): self._itens = []
-    def enfileirar(self, item): self._itens.append(item)
-    def desenfileirar(self): return self._itens.pop(0) if not self.vazia() else None
-    def vazia(self): return len(self._itens) == 0
-
 class Grafo:
     def __init__(self):
         self.vertices_nome = []  

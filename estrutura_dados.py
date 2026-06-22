@@ -13,6 +13,8 @@ class Fila:
         if not self.vazia():
             return self._itens.pop(0) # Sai do início
         return None
+    
+    #def desenfileirar(self): return self._itens.pop(0) if not self.vazia() else None
         
     def vazia(self):
         return len(self._itens) == 0
