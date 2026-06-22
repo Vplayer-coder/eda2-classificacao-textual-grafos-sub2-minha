@@ -1,27 +1,10 @@
 import json
 import os
+from estrutura_dados import Fila
+from extrator_dados_steam import limpar_e_tokenizar
 
 # ==============================================================================
-# 1. ESTRUTURA DE DADOS ADICIONAL (FILA CLÁSSICA) - Exigência do Edital
-# ==============================================================================
-class Fila:
-    """Implementação Clássica de Fila (Queue) baseada em Array (FIFO)."""
-    def __init__(self):
-        self._itens = []
-        
-    def enfileirar(self, item):
-        self._itens.append(item)
-        
-    def desenfileirar(self):
-        if not self.vazia():
-            return self._itens.pop(0)
-        return None
-        
-    def vazia(self):
-        return len(self._itens) == 0
-
-# ==============================================================================
-# 2. CLASSE DO GRAFO PONDERADO (LISTA DE ADJACÊNCIA COM ARRAYS PARALELOS)
+# 1. CLASSE DO GRAFO PONDERADO (LISTA DE ADJACÊNCIA COM ARRAYS PARALELOS)
 # ==============================================================================
 class Grafo:
     """Grafo Relacional Ponderado sem uso de Tabelas Hash ou Dicionários nativos."""
@@ -70,7 +53,7 @@ class Grafo:
         return -1
 
 # ==============================================================================
-# 3. CONSTRUÇÃO E POPULAÇÃO DA ESTRUTURA HIERÁRQUICA (VOCABULÁRIO COMPLETO)
+# 2. CONSTRUÇÃO E POPULAÇÃO DA ESTRUTURA HIERÁRQUICA (VOCABULÁRIO COMPLETO)
 # ==============================================================================
 def construir_grafo_subnautica():
     grafo = Grafo()
@@ -201,7 +184,7 @@ def construir_grafo_subnautica():
     return grafo
 
 # ==============================================================================
-# 4. TREINAMENTO DE PESOS (Critério 3 e Temática E: Frequência Estatística)
+# 3. TREINAMENTO DE PESOS (Critério 3 e Temática E: Frequência Estatística)
 # ==============================================================================
 def calcular_pesos_por_frequencia(grafo, dataset):
     """
@@ -229,7 +212,7 @@ def calcular_pesos_por_frequencia(grafo, dataset):
                     grafo.atualizar_peso_aresta(i, vizinho, peso_calculado)
 
 # ==============================================================================
-# 5. ALGORITMO DE INFERÊNCIA: BUSCA EM LARGURA (BFS) MULTI-RÓTULO
+# 4. ALGORITMO DE INFERÊNCIA: BUSCA EM LARGURA (BFS) MULTI-RÓTULO
 # ==============================================================================
 def classificar_review_bfs_ponderada(grafo, tokens):
     """
@@ -299,6 +282,23 @@ def classificar_review_bfs_ponderada(grafo, tokens):
                 
     return rotulos_finais
 
+meu_grafo = construir_grafo_subnautica()
+## ==============================================================================
+# 5. NOVAS REVIEWS PARA CLASSIFICAR
+# ==============================================================================
+def nova_review():
+    review = input("Escreva aqui a nova review: ")
+    review = limpar_e_tokenizar(review)
+    tokens_unicos = []
+    for t in review:
+        if t not in tokens_unicos: 
+            tokens_unicos.append(t)
+    rotulos = classificar_review_bfs_ponderada(meu_grafo, tokens_unicos)
+    print("Essa review possui tendências de: ")
+    if "Casual" in rotulos: print("Casual")
+    if "Hardcore" in rotulos: print("Hardcore")
+    if "Técnico" in rotulos: print("Técnico")
+
 ## ==============================================================================
 # 6. MOTOR PRINCIPAL E RELATÓRIO ANALÍTICO DETALHADO (Critério 5)
 # ==============================================================================
@@ -309,7 +309,6 @@ if __name__ == "__main__":
         print(f"Erro: O ficheiro {nome_ficheiro} não foi encontrado!")
         exit()
         
-    meu_grafo = construir_grafo_subnautica()
     with open(nome_ficheiro, "r", encoding="utf-8") as f:
         dataset = json.load(f)
         
@@ -389,3 +388,9 @@ if __name__ == "__main__":
         print(f" -> [ Todas as Três Categorias ]    : {c_todas_categorias}")
         print("    (Textos extremamente longos e abrangentes)")
     print("=======================================================================")
+
+    try:
+        while (True):
+            nova_review()
+    except KeyboardInterrupt:
+        pass
