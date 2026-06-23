@@ -30,6 +30,7 @@ class Grafo:
         self.vertices_tipo = []  # 0: Palavra, 1: Subcategoria, 2: Categoria Principal
         self.adjacencias = []    # Lista de adjacência (Array de Arrays com IDs)
         self.pesos = []          # Array de Arrays paralelo para armazenar os pesos estatísticos
+        self.total_arestas_unicas = 0 # Contador de arestas matemáticas únicas (|E|)
 
     def adicionar_vertice(self, nome, tipo):
         id_vertice = len(self.vertices_nome)
@@ -41,13 +42,20 @@ class Grafo:
 
     def adicionar_aresta(self, id_origem, id_destino, peso=1):
         """Cria conexão não-direcionada e inicializa o peso da aresta."""
+        
+        aresta_nova = False # Checa se uma aresta matemática única foi criada
+        
         if id_destino not in self.adjacencias[id_origem]:
             self.adjacencias[id_origem].append(id_destino)
             self.pesos[id_origem].append(peso)
+            aresta_nova = True # Conexão nova estabelecida
             
         if id_origem not in self.adjacencias[id_destino]:
             self.adjacencias[id_destino].append(id_origem)
             self.pesos[id_destino].append(peso)
+        
+        if aresta_nova:
+            self.total_arestas_unicas += 1
 
     def atualizar_peso_aresta(self, id_origem, id_destino, novo_peso):
         """Busca linear nas listas de adjacência para atualizar o peso matemático."""
@@ -60,6 +68,14 @@ class Grafo:
             if self.adjacencias[id_destino][i] == id_origem:
                 self.pesos[id_destino][i] = novo_peso
                 break
+
+    def calcular_densidade(self):
+        v = len(self.vertices_nome)
+        if v <= 1:
+            return 0.0
+            
+        densidade = (2 * self.total_arestas_unicas) / (v * (v - 1))
+        return densidade
 
     def buscar_id_por_nome(self, nome):
         """Busca Linear Pura (O(N)) - Substituindo Hashmaps por restrição pedagógica."""
