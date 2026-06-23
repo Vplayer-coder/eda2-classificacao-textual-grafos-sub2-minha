@@ -123,6 +123,16 @@ if __name__ == "__main__":
         dataset = json.load(f)
         
     calcular_pesos_por_frequencia(meu_grafo, dataset)
+
+    # EXIBIÇÃO DAS MÉTRICAS ESTRUTURAIS DO GRAFO
+    print("\n" + "=" * 71)
+    print(" >>> MÉTRICAS ESTRUTURAIS DO GRAFO <<<")
+    print("=" * 71)
+
+    densidade = meu_grafo.calcular_densidade()
+    print(f"Densidade Geral da Rede Semântica: {densidade:.6f}")
+    print(f"Isto significa que aproximadamente {densidade*100:.3f}% das conexões possíveis existem")
+
     print("\nIniciando Classificação Multi-rótulo (BFS Ponderada com Corte 30%)...\n")
     
     # Contadores Analíticos Puros
