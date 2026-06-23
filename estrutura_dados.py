@@ -76,6 +76,21 @@ class Grafo:
             
         densidade = (2 * self.total_arestas_unicas) / (v * (v - 1))
         return densidade
+    
+    def obter_top_10_centalidade_grau(self):
+        """Retorna os 10 vértices com maior centrlidade de grau."""
+        v = len(self.vertices_nome)
+        if v <= 1:
+            return []
+        
+        resultado = []
+        for i in range(v):
+            grau = len(self.adjacencias[i])
+            centralidade_normalizada = grau / (v - 1)
+            resultado.append((self.vertices_nome[i], grau, centralidade_normalizada))
+        
+        resultado_ordenado = sorted(resultado, key=lambda x: x[1]) # Ordena a lista de forma decrescente com base no número de conexões (grau)
+        return resultado_ordenado[:10]
 
     def buscar_id_por_nome(self, nome):
         """Busca Linear Pura (O(N)) - Substituindo Hashmaps por restrição pedagógica."""
