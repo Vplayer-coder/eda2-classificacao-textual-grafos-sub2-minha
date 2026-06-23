@@ -133,6 +133,12 @@ if __name__ == "__main__":
     print(f"Densidade Geral da Rede Semântica: {densidade:.6f}")
     print(f"Isto significa que aproximadamente {densidade*100:.3f}% das conexões possíveis existem")
 
+    print("\nTop 10 termos mais conectados (Centralidade de Grau):")
+    top_nos = meu_grafo.obter_top_10_centalidade_grau()
+    for rank, (nome, grau, cent) in enumerate(top_nos, 1):
+        print(f" {rank:2d}. Vértice: {nome: <20} | Conexões Dirertas: {grau:<3} | Centralidade: {cent:.4f}")
+    print("=" * 71 + "\n")
+
     print("\nIniciando Classificação Multi-rótulo (BFS Ponderada com Corte 30%)...\n")
     
     # Contadores Analíticos Puros
